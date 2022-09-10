@@ -1,8 +1,9 @@
 name: test_server
 on:
+  workflow_dispatch:
   push:
     paths:
-      -
+      - server/**
     branches: [main]
   pull_request:
     branches: [main]
