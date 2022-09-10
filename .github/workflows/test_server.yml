@@ -20,6 +20,6 @@ jobs:
       - name: Install poetry
         uses: snok/install-poetry@v1
       - name: Install dependencies
-        run: cd server && poetry install --no-interaction --no-root
+        run: cd server && poetry install --no-interaction
       - name: Run tests
         run: cd server && ./scripts/run_tests.sh
