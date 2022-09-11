@@ -6,7 +6,7 @@ class DissasembleRequest(BaseModel):
     versions: list[str] = ["all"]
 
     @validator("versions")
-    def versions_non_empty(cls, v: list[str]) -> list[str]:
-        if len(v) == 0:
+    def versions_non_empty(cls, val: list[str]) -> list[str]:
+        if len(val) == 0:
             raise ValueError("must not be empty")
-        return v
+        return val

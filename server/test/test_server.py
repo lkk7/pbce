@@ -1,7 +1,7 @@
 import unittest
 
+from pbce_server.main import app
 from pbce_server.pyversions import available_versions
-from pbce_server.server import app
 from starlette.testclient import TestClient
 
 
