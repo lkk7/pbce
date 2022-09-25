@@ -1,12 +1,19 @@
-from pydantic import BaseModel, validator
+from typing import Any, TypedDict
+
+from pydantic import BaseModel
 
 
 class DissasembleRequest(BaseModel):
     code: str
     versions: list[str] = ["all"]
 
-    @validator("versions")
-    def versions_non_empty(cls, val: list[str]) -> list[str]:
-        if len(val) == 0:
-            raise ValueError("must not be empty")
-        return val
+
+class InstructionDict(TypedDict):
+    opcode: int
+    opname: str
+    arg: int | None
+    argval: Any
+    argrepr: str
+    offset: int
+    starts_line: int | None
+    is_jump_target: bool

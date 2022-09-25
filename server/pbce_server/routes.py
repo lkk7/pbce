@@ -1,39 +1,19 @@
-import json
+import asyncio
+import base64
+from dis import Instruction
 
-from pydantic import BaseModel, ValidationError
+from pbce_server.disassemble import send_disassemble_task
+from pbce_server.models import DissasembleRequest
+from pbce_server.pyversions import versions_paths
+from pbce_server.request import get_validated_request
 from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request
 from starlette.responses import JSONResponse, PlainTextResponse
 
 
-from .models import DissasembleRequest
-from .pyversions import available_versions
-
-
 class Versions(HTTPEndpoint):
     async def get(self, _: Request) -> JSONResponse:
-        return JSONResponse(available_versions)
-
-
-async def get_validated_request(
-    request: Request, request_class: BaseModel
-) -> DissasembleRequest | PlainTextResponse:
-    try:
-        body = await request.json()
-        valid_request = DissasembleRequest(**body)
-    except ValidationError as e:
-        errors = ", ".join((str(err) for err in e.errors()))
-        return PlainTextResponse(
-            f"errors in JSON body: {errors}",
-            status_code=400,
-        )
-    except (json.JSONDecodeError, ValueError, TypeError):
-        return PlainTextResponse(
-            "Incorrect request body, ensure that it has this schema: "
-            f"{request_class.schema_json()}",
-            status_code=400,
-        )
-    return valid_request
+        return JSONResponse(list(versions_paths))
 
 
 class Disassemble(HTTPEndpoint):
@@ -41,16 +21,28 @@ class Disassemble(HTTPEndpoint):
         valid_request = await get_validated_request(request, DissasembleRequest)
         if isinstance(valid_request, PlainTextResponse):
             return valid_request
-        try:
-            if valid_request.versions == ["all"] or len(valid_request.versions) == 0:
-                pass  # all versions
-            else:
-                pass  # given versions
-            # pyversions_path = os.getenv("PYVERSIONS_PATH")
-        except SyntaxError as e:
-            return PlainTextResponse(
-                f"Syntax error ({e.lineno}:{e.offset}, {e.msg})"
-                "Check that the code is correct and is legal in this Python version",
-                status_code=400,
-            )
-        return JSONResponse(valid_request.dict())
+
+        # Get Python versions in which to disassemble the code
+        versions = valid_request.versions
+        if versions == ["all"] or len(versions) == 0:
+            versions = list(versions_paths)
+        else:
+            bad_versions = list(filter(lambda v: v not in versions_paths, versions))
+            if len(bad_versions) > 0:
+                return PlainTextResponse(
+                    f"specified version(s): {bad_versions} not available",
+                    status_code=400,
+                )
+
+        # Temporary b64 encode - client should do that!
+        code = base64.b64encode(bytes(valid_request.code, "utf-8")).decode("utf-8")
+        # Disassemble the code by async tasks, for all specified versions
+        disassembled: list[Instruction | Exception] = await asyncio.gather(
+            *(send_disassemble_task(v, code) for v in versions)
+        )
+        return JSONResponse(
+            {
+                versions[i]: str(d) if isinstance(d, Exception) else d
+                for i, d in enumerate(disassembled)
+            }
+        )

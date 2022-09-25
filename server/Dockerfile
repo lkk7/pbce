@@ -1,12 +1,12 @@
 # For development server run:
 # docker run -it --rm -p 8000:8000 --mount type=bind,source="$(pwd)",target=/root/server pbce poetry run uvicorn pbce_server.main:app --host 0.0.0.0 --reload
-FROM ubuntu:latest as build
+FROM python:latest as build
 SHELL ["/bin/bash", "-c"]
 ENV DEBIAN_FRONTEND="noninteractive" PYVERSIONS_PATH="/root/.pyenv/versions"
 COPY . /root/server
 RUN apt-get update && apt-get install -y \
-    # install pip3, poetry, pyenv dependencies and git
-    python3-pip make build-essential libssl-dev zlib1g-dev libbz2-dev \
+    # install pyenv dependencies and git
+    make build-essential libssl-dev zlib1g-dev libbz2-dev \
     libreadline-dev libsqlite3-dev wget curl llvm libncursesw5-dev xz-utils \
     tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev git \
     # install pyenv 2.3.4
@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y \
     # install all Python versions
     && cd /root/server && ./scripts/all_python_install.sh \
     # install the server poetry dependencies
-    && pip3 install poetry && poetry install --without dev \
+    && pip3 install poetry && poetry install \
     # clean up
     && rm -r /tmp/*
 WORKDIR /root/server

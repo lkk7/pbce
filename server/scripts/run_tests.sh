@@ -1,1 +1,2 @@
-poetry run python3 test/test_server.py
+#!/bin/bash
+TEST=1 poetry run pytest test

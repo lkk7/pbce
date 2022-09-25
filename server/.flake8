@@ -1,6 +1,6 @@
 [flake8]
 select = B,S,ANN,BLK,C,E,F,W,I
-ignore = ANN101
+ignore = ANN101,S101,S301,S403
 import-order-style = google
 max-line-length = 88
 exclude = __pycache__,.mypy_cache
