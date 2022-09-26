@@ -1,7 +1,7 @@
 import asyncio
 from dis import Instruction
 from pickle import loads
-from typing import cast
+import typing
 
 from pbce_server.models import InstructionDict
 
@@ -29,7 +29,7 @@ async def send_disassemble_task(
         asyncio.subprocess.PIPE,
         asyncio.subprocess.PIPE,
     )
-    disassembled_code = cast(
+    disassembled_code = typing.cast(
         list[Instruction] | Exception, loads((await proc.communicate())[0])
     )
     if isinstance(disassembled_code, Exception):
