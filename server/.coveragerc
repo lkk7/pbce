@@ -1,5 +1,2 @@
 [run]
 source = pbce_server
-
-[html]
-directory = coverage_html_report

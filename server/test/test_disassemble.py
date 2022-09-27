@@ -14,30 +14,27 @@ SendDisassembleTaskType = typing.Coroutine[
 ]
 
 
-class MockSubprocess:
-    async def communicate(self) -> list[str]:
-        return ["stdin", "stderr"]
-
-
-async def get_mock_subprocess(*args: object, **kwargs: object) -> MockSubprocess:
-    return MockSubprocess()
-
-
-def get_mock_pickle_loads(
-    return_val: list[Instruction] | Exception,
-) -> typing.Callable[..., list[Instruction] | Exception]:
-    def mock_pickle_loads(
-        *args: object, **kwargs: object
-    ) -> list[Instruction] | Exception:
-        return return_val
-
-    return mock_pickle_loads
-
-
 @pytest.fixture
-def patched_send_disassemble_task(
+def get_patched_send_func(
     monkeypatch: pytest.MonkeyPatch,
 ) -> typing.Callable[[SendDisassembleTaskRetType], SendDisassembleTaskType]:
+    class MockSubprocess:
+        async def communicate(self) -> list[str]:
+            return ["stdin", "stderr"]
+
+    async def get_mock_subprocess(*args: object, **kwargs: object) -> MockSubprocess:
+        return MockSubprocess()
+
+    def get_mock_pickle_loads(
+        return_val: list[Instruction] | Exception,
+    ) -> typing.Callable[..., list[Instruction] | Exception]:
+        def mock_pickle_loads(
+            *args: object, **kwargs: object
+        ) -> list[Instruction] | Exception:
+            return return_val
+
+        return mock_pickle_loads
+
     def wrapper(
         return_val: SendDisassembleTaskRetType,
     ) -> SendDisassembleTaskType:
@@ -54,9 +51,9 @@ def patched_send_disassemble_task(
 class TestSendDisassembleTask:
     async def test_instruction_response(
         self,
-        patched_send_disassemble_task: SendDisassembleTaskType,
+        get_patched_send_func: SendDisassembleTaskType,
     ) -> None:
-        result = await patched_send_disassemble_task(
+        result = await get_patched_send_func(
             [
                 Instruction(
                     opname="TESTNAME",
@@ -76,9 +73,9 @@ class TestSendDisassembleTask:
 
     async def test_exception_response(
         self,
-        patched_send_disassemble_task: SendDisassembleTaskType,
+        get_patched_send_func: SendDisassembleTaskType,
     ) -> None:
-        result = await patched_send_disassemble_task(SyntaxError("Error!"))(
+        result = await get_patched_send_func(SyntaxError("Error!"))(
             "3.10.0", "print(1)"
         )
         assert isinstance(result, SyntaxError)
