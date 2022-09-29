@@ -1,7 +1,7 @@
 from json import JSONDecodeError
 from typing import Any
 
-from pbce_server.models import DissasembleRequest
+from pbce_server.models import DisassembleRequest
 from pbce_server.request import get_validated_request
 import pytest
 from starlette.requests import Request
@@ -31,14 +31,14 @@ class TestGetValidatedRequest:
     )
     async def test_result_on_error(self, error_type: Exception) -> None:
         result = await get_validated_request(
-            get_mock_request(error_type), DissasembleRequest
+            get_mock_request(error_type), DisassembleRequest
         )
         assert isinstance(result, PlainTextResponse)
         assert result.status_code == 400
 
     async def test_result_validation_error(self) -> None:
         result = await get_validated_request(
-            get_mock_request({"wrong": "schema"}), DissasembleRequest
+            get_mock_request({"wrong": "schema"}), DisassembleRequest
         )
         assert isinstance(result, PlainTextResponse)
         assert result.status_code == 400
@@ -46,8 +46,8 @@ class TestGetValidatedRequest:
     async def test_correct_result(self) -> None:
         result = await get_validated_request(
             get_mock_request({"code": 'print("hello")', "versions": ["all"]}),
-            DissasembleRequest,
+            DisassembleRequest,
         )
-        assert isinstance(result, DissasembleRequest)
+        assert isinstance(result, DisassembleRequest)
         assert result.code == 'print("hello")'
         assert result.versions == ["all"]

@@ -1,19 +1,79 @@
+from httpx import AsyncClient
 from pbce_server.main import app
+from pbce_server.models import DisassembleRequest, InstructionDict
 from pbce_server.pyversions import versions_paths
 import pytest
-from starlette.testclient import TestClient
+from starlette.responses import PlainTextResponse
+
+pytestmark = pytest.mark.asyncio
+imports = {
+    "get_val_req": "pbce_server.routes.get_validated_request",
+    "send_dis_task": "pbce_server.routes.send_disassemble_task",
+}
 
 
-@pytest.fixture
-def test_client() -> TestClient:
-    return TestClient(app)
+async def get_err_response(*args: object, **kwargs: object) -> PlainTextResponse:
+    return PlainTextResponse("ERROR")
 
 
-def test_versions_response(test_client: TestClient) -> None:
-    response = test_client.get("/versions")
-    assert response.status_code == 200
-    assert response.json() == list(versions_paths)
+async def get_bad_versions(*args: object, **kwargs: object) -> DisassembleRequest:
+    return DisassembleRequest(code="print(1)", versions=["1.2.3", "wrong", "versions"])
 
 
-def test_invalid_request() -> None:
-    assert True
+async def get_correct_versions(*args: object, **kwargs: object) -> DisassembleRequest:
+    return DisassembleRequest(code="print(1)", versions=["3.7.0", "3.8.0"])
+
+
+mock_instruction = InstructionDict(
+    opname="TESTNAME",
+    opcode=123,
+    arg=None,
+    argval=None,
+    argrepr="",
+    offset=1,
+    starts_line=1,
+    is_jump_target=False,
+)
+
+
+async def mock_send_disassemble_task(
+    version: str, code: str
+) -> list[InstructionDict] | Exception:
+    return [mock_instruction] if version == "3.7.0" else SyntaxError("TestError!")
+
+
+class TestVersionsRoute:
+    async def test_versions_response(self) -> None:
+        async with AsyncClient(app=app, base_url="http://testserver") as client:
+            response = await client.get("/versions")
+            assert response.status_code == 200
+            assert response.json() == list(versions_paths)
+
+
+class TestDisassembleRoute:
+    async def test_invalid_request(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        async with AsyncClient(app=app, base_url="http://testserver") as client:
+            monkeypatch.setattr(imports["get_val_req"], get_err_response)
+            response = await client.post("/disassemble")
+            assert response.content == b"ERROR"
+
+    async def test_bad_versions_request(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        async with AsyncClient(app=app, base_url="http://testserver") as client:
+            monkeypatch.setattr(imports["get_val_req"], get_bad_versions)
+            response = await client.post("/disassemble")
+            assert response.status_code == 400
+            assert (
+                response.content == b"specified version(s):"
+                b" ['1.2.3', 'wrong', 'versions'] not available"
+            )
+
+    async def test_versions_request(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        async with AsyncClient(app=app, base_url="http://testserver") as client:
+            monkeypatch.setattr(imports["get_val_req"], get_correct_versions)
+            monkeypatch.setattr(imports["send_dis_task"], mock_send_disassemble_task)
+            response = await client.post("/disassemble")
+            assert response.status_code == 200
+            assert response.json() == {
+                "3.7.0": [mock_instruction],
+                "3.8.0": "TestError!",
+            }

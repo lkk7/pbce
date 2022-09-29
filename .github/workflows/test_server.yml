@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: cd server && poetry install --no-interaction --with test
       - name: Run tests
-        run: cd server && ./scripts/run_tests.sh
+        run: cd server && ./scripts/run_tests_coverage.sh
       - name: Upload API test coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
