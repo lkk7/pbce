@@ -3,7 +3,7 @@ from typing import Any, TypedDict
 from pydantic import BaseModel
 
 
-class DissasembleRequest(BaseModel):
+class DisassembleRequest(BaseModel):
     code: str
     versions: list[str] = ["all"]
 

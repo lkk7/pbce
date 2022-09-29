@@ -3,7 +3,7 @@ import base64
 from dis import Instruction
 
 from pbce_server.disassemble import send_disassemble_task
-from pbce_server.models import DissasembleRequest
+from pbce_server.models import DisassembleRequest
 from pbce_server.pyversions import versions_paths
 from pbce_server.request import get_validated_request
 from starlette.endpoints import HTTPEndpoint
@@ -17,8 +17,8 @@ class Versions(HTTPEndpoint):
 
 
 class Disassemble(HTTPEndpoint):
-    async def get(self, request: Request) -> JSONResponse | PlainTextResponse:
-        valid_request = await get_validated_request(request, DissasembleRequest)
+    async def post(self, request: Request) -> JSONResponse | PlainTextResponse:
+        valid_request = await get_validated_request(request, DisassembleRequest)
         if isinstance(valid_request, PlainTextResponse):
             return valid_request
 
