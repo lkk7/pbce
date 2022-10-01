@@ -1,5 +1,5 @@
-# For development server run:
-# docker run -it --rm -p 8000:8000 --mount type=bind,source="$(pwd)",target=/root/server pbce poetry run uvicorn pbce_server.main:app --host 0.0.0.0 --reload
+# For a development server run:
+# docker run -it --rm -p 8080:8080 --mount type=bind,source="$(pwd)",target=/root/server pbce poetry run uvicorn pbce_server.main:app --host 0.0.0.0 --port 8080 --reload
 FROM python:3.10 as build
 SHELL ["/bin/bash", "-c"]
 ENV DEBIAN_FRONTEND="noninteractive" PYVERSIONS_PATH="/root/.pyenv/versions"
@@ -23,4 +23,4 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     # clean up
     && rm -r /tmp/*
 WORKDIR /root/server
-CMD ["poetry", "run", "uvicorn", "pbce_server.main:app", "--host", "0.0.0.0"]
+CMD ["poetry", "run", "uvicorn", "pbce_server.main:app", "--host", "0.0.0.0", "--port", "8080"]
