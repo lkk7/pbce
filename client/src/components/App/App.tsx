@@ -1,15 +1,8 @@
 import { AppShell, Header } from "@mantine/core";
-import Editor, { EditorProps } from "@monaco-editor/react";
 import { useState, useEffect } from "react";
-import { api } from "../../api";
-import { SelectVersions } from "../SelectVersions";
-
-const editorProps: EditorProps = {
-  width: "100%",
-  height: "50vh",
-  language: "cpp",
-  theme: "vs-dark",
-};
+import { api } from "api";
+import { SelectVersions } from "components/SelectVersions";
+import { CodeEditor } from "components/CodeEditor";
 
 export const App = () => {
   const [versions, setVersions] = useState<string[]>([]);
@@ -27,7 +20,7 @@ export const App = () => {
       }
     >
       <SelectVersions data={versions} />
-      <Editor {...editorProps} />
+      <CodeEditor />
     </AppShell>
   );
 };
