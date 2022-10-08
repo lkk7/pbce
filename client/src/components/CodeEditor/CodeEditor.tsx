@@ -3,7 +3,7 @@ import Editor, { EditorProps } from "@monaco-editor/react";
 const editorProps: EditorProps = {
   width: "100%",
   height: "50vh",
-  language: "cpp",
+  language: "python",
   theme: "vs-dark",
 };
 
