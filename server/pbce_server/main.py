@@ -6,7 +6,13 @@ from starlette.routing import Route
 
 from .routes import Disassemble, Versions
 
-middleware = [Middleware(CORSMiddleware, allow_origins=["*"])]
+middleware = [
+    Middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["GET", "POST", "OPTIONS"],
+    )
+]
 
 app = Starlette(
     routes=[
