@@ -1,15 +1,22 @@
 import { MultiSelect, MultiSelectProps } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { api } from "api";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { typedUseDispatch } from "store/hooks";
+import { setSelectedVersions } from "store/slices/selectedVersions";
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
 export const SelectVersions = ({
   ...props
 }: Optional<MultiSelectProps, "data">) => {
+  const dispatch = typedUseDispatch();
   const [versions, setVersions] = useState<string[]>([]);
   const [disabled, setDisabled] = useState(false);
+  const onSelectChange = useCallback(
+    (value: string[]) => dispatch(setSelectedVersions(value)),
+    [dispatch]
+  );
 
   useEffect(() => {
     api
@@ -33,6 +40,7 @@ export const SelectVersions = ({
       clearButtonLabel="Clear selection"
       {...props}
       disabled={disabled}
+      onChange={onSelectChange}
     />
   );
 };
