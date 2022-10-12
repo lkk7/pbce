@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "store/store";
 
-export interface VersionsState {
+interface VersionsState {
   selectedVersions: string[];
 }
 
@@ -9,8 +9,8 @@ const initialState: VersionsState = {
   selectedVersions: [],
 };
 
-export const selectedVersionsSlice = createSlice({
-  name: "versions",
+export const versionsSlice = createSlice({
+  name: "selectedVersions",
   initialState: initialState,
   reducers: {
     setSelectedVersions: (state, action: PayloadAction<string[]>) => {
@@ -19,7 +19,7 @@ export const selectedVersionsSlice = createSlice({
   },
 });
 
-export const { setSelectedVersions } = selectedVersionsSlice.actions;
+export const { setSelectedVersions } = versionsSlice.actions;
 export const selectedVersionsSelector = (state: RootState) =>
   state.versions.selectedVersions;
-export const versionsReducer = selectedVersionsSlice.reducer;
+export const versionsReducer = versionsSlice.reducer;

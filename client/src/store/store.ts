@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { versionsReducer } from "./slices/selectedVersions";
+import { instructionsReducer } from "./slices/instructions";
+import { versionsReducer } from "./slices/versions";
 
 export const store = configureStore({
   reducer: {
     versions: versionsReducer,
+    instructions: instructionsReducer,
   },
 });
 

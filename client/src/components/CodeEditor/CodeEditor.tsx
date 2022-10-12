@@ -1,8 +1,9 @@
 import Editor, { EditorProps, OnChange } from "@monaco-editor/react";
 import { getDisassembled } from "api/endpoints";
-import { useCallback } from "react";
-import { typedUseSelector } from "store/hooks";
-import { selectedVersionsSelector } from "store/slices/selectedVersions";
+import { useCallback, useMemo } from "react";
+import { typedUseDispatch, typedUseSelector } from "store/hooks";
+import { setInstructions } from "store/slices/instructions";
+import { selectedVersionsSelector } from "store/slices/versions";
 
 const editorProps: EditorProps = {
   width: "100%",
@@ -11,17 +12,31 @@ const editorProps: EditorProps = {
   theme: "vs-dark",
 };
 
+const debounce = (func: Function, delay: number) => {
+  let timeout: ReturnType<typeof setTimeout>;
+  return (...args: any[]) => {
+    const toExecute = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(toExecute, delay);
+  };
+};
+
 export const CodeEditor = () => {
+  const dispatch = typedUseDispatch();
   const selectedVersions = typedUseSelector(selectedVersionsSelector);
-
   const onChange: OnChange = useCallback(
-    (code, _) => {
-      if (!code) return;
-      // TODO: debounce & handle
-      getDisassembled(code, selectedVersions).then((res) => console.log(res));
+    (code) => {
+      if (!code || !code.trim()) return;
+      getDisassembled(code, selectedVersions).then((res) =>
+        dispatch(setInstructions(res))
+      );
     },
-    [selectedVersions]
+    [dispatch, selectedVersions]
   );
+  const debouncedOnChange = useMemo(() => debounce(onChange, 500), [onChange]);
 
-  return <Editor {...editorProps} onChange={onChange} />;
+  return <Editor {...editorProps} onChange={debouncedOnChange} />;
 };

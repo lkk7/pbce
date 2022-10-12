@@ -3,7 +3,7 @@ import { showNotification } from "@mantine/notifications";
 import { api } from "api";
 import { useCallback, useEffect, useState } from "react";
 import { typedUseDispatch } from "store/hooks";
-import { setSelectedVersions } from "store/slices/selectedVersions";
+import { setSelectedVersions } from "store/slices/versions";
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
