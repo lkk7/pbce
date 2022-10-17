@@ -1,5 +1,4 @@
 import asyncio
-import base64
 from dis import Instruction
 
 from pbce_server.disassemble import send_disassemble_task
@@ -34,11 +33,9 @@ class Disassemble(HTTPEndpoint):
                     status_code=400,
                 )
 
-        # Temporary b64 encode - client should do that!
-        code = base64.b64encode(bytes(valid_request.code, "utf-8")).decode("utf-8")
         # Disassemble the code by async tasks, for all specified versions
         disassembled: list[Instruction | Exception] = await asyncio.gather(
-            *(send_disassemble_task(v, code) for v in versions)
+            *(send_disassemble_task(v, valid_request.code) for v in versions)
         )
         return JSONResponse(
             {

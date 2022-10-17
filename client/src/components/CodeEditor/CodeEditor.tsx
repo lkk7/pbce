@@ -4,6 +4,7 @@ import { useCallback, useMemo } from "react";
 import { typedUseDispatch, typedUseSelector } from "store/hooks";
 import { setInstructions } from "store/slices/instructions";
 import { selectedVersionsSelector } from "store/slices/versions";
+import { debounceRequest, unicodeStrToByteStr } from "./utils";
 
 const editorProps: EditorProps = {
   width: "100%",
@@ -12,31 +13,27 @@ const editorProps: EditorProps = {
   theme: "vs-dark",
 };
 
-const debounce = (func: Function, delay: number) => {
-  let timeout: ReturnType<typeof setTimeout>;
-  return (...args: any[]) => {
-    const toExecute = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(toExecute, delay);
-  };
-};
-
 export const CodeEditor = () => {
   const dispatch = typedUseDispatch();
   const selectedVersions = typedUseSelector(selectedVersionsSelector);
   const onChange: OnChange = useCallback(
     (code) => {
       if (!code || !code.trim()) return;
-      getDisassembled(code, selectedVersions).then((res) =>
-        dispatch(setInstructions(res))
-      );
+      getDisassembled(
+        // The code payload is base64-encoded because the server API requires it.
+        window.btoa(unicodeStrToByteStr(code)),
+        selectedVersions
+      ).then((res) => {
+        console.log(res);
+        dispatch(setInstructions(res));
+      });
     },
     [dispatch, selectedVersions]
   );
-  const debouncedOnChange = useMemo(() => debounce(onChange, 500), [onChange]);
+  const debouncedOnChange = useMemo(
+    () => debounceRequest(onChange, 500),
+    [onChange]
+  );
 
   return <Editor {...editorProps} onChange={debouncedOnChange} />;
 };
