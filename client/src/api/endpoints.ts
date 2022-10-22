@@ -1,3 +1,4 @@
+import { InstructionsForVersions } from "store/slices/instructions";
 import { instance } from "./instance";
 
 export const getVersions = async () => {
@@ -6,7 +7,7 @@ export const getVersions = async () => {
 };
 
 export const getDisassembled = async (code: string, versions: string[]) => {
-  const response = await instance.post<any>("disassemble", {
+  const response = await instance.post<InstructionsForVersions>("disassemble", {
     code: code,
     versions: versions,
   });

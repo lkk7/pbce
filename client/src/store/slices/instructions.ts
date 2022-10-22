@@ -13,7 +13,7 @@ export interface BytecodeInstruction {
 }
 
 export interface InstructionsForVersions {
-  [key: string]: BytecodeInstruction[];
+  [key: string]: BytecodeInstruction[] | string;
 }
 
 interface InstructionsState {

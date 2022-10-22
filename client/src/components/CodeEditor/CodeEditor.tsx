@@ -24,7 +24,6 @@ export const CodeEditor = () => {
         window.btoa(unicodeStrToByteStr(code)),
         selectedVersions
       ).then((res) => {
-        console.log(res);
         dispatch(setInstructions(res));
       });
     },
