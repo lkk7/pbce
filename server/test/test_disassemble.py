@@ -55,7 +55,7 @@ class TestSendDisassembleTask:
     ) -> None:
         result = await get_patched_send_func(
             [
-                Instruction(
+                InstructionDict(
                     opname="TESTNAME",
                     opcode=123,
                     arg=None,
