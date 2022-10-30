@@ -1,4 +1,5 @@
 {
   "pickPyVersions": "Python version(s) to use",
-  "networkErrTryAgain": "Network error. Try refreshing the page. If the problem persists, the server or your network might be down."
+  "networkErrTryAgain": "Network error. Try refreshing the page. If the problem persists, the server or your network might be down.",
+  "results": "Results"
 }

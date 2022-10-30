@@ -6,7 +6,7 @@ interface VersionsState {
 }
 
 const initialState: VersionsState = {
-  selectedVersions: [],
+  selectedVersions: ["all"],
 };
 
 export const versionsSlice = createSlice({

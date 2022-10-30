@@ -32,7 +32,7 @@ export const SelectVersions = React.forwardRef<
       // "all" can only be selected alone. If we select something else
       // and "all" is already selected (is at first position), we should remove it.
       if (value.length > 1 && value[0] === "all") value = value.slice(1);
-      if (value.includes("all")) value = ["all"];
+      if (value.includes("all") || value.length === 0) value = ["all"];
       dispatch(setSelectedVersions(value));
       if (!editorValue || !editorValue.trim()) return;
       getAndHandleDisassembled(editorValue, value, dispatch);

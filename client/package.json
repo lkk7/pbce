@@ -30,6 +30,7 @@
     "@types/node": "^16.11.64",
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
+    "eslint-plugin-jsx-a11y": "^6.6.1",
     "eslint-plugin-react-hooks": "^4.6.0",
     "typescript": "^4.8.4"
   },
@@ -37,7 +38,8 @@
     "extends": [
       "react-app",
       "react-app/jest",
-      "plugin:react-hooks/recommended"
+      "plugin:react-hooks/recommended",
+      "plugin:jsx-a11y/recommended"
     ]
   },
   "browserslist": {
