@@ -1,3 +1,8 @@
+import { getDisassembled } from "api/endpoints";
+import { requestErrorHandler } from "api/errors";
+import { setInstructions } from "store/slices/instructions";
+import { type AppDispatch } from "store/store";
+
 export const debounceRequest = (func: Function, delay: number) => {
   let timeout: ReturnType<typeof setTimeout>;
   return (...args: any[]) => {
@@ -8,6 +13,22 @@ export const debounceRequest = (func: Function, delay: number) => {
     clearTimeout(timeout);
     timeout = setTimeout(toExecute, delay);
   };
+};
+
+export const getAndHandleDisassembled = (
+  code: string,
+  versions: string[],
+  dispatch: AppDispatch
+) => {
+  getDisassembled(
+    // The code payload is base64-encoded because the server API requires it.
+    window.btoa(unicodeStrToByteStr(code)),
+    versions
+  )
+    .then((res) => {
+      dispatch(setInstructions(res));
+    })
+    .catch(requestErrorHandler);
 };
 
 /**

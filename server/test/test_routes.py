@@ -1,6 +1,6 @@
 from httpx import AsyncClient
 from pbce_server.main import app
-from pbce_server.models import DisassembleRequest, InstructionDict
+from pbce_server.models import DisassembleRequest
 from pbce_server.pyversions import versions_paths
 import pytest
 from starlette.responses import PlainTextResponse
@@ -24,22 +24,8 @@ async def get_correct_versions(*args: object, **kwargs: object) -> DisassembleRe
     return DisassembleRequest(code="print(1)", versions=["3.7.0", "3.8.0"])
 
 
-mock_instruction = InstructionDict(
-    opname="TESTNAME",
-    opcode=123,
-    arg=None,
-    argval=None,
-    argrepr="",
-    offset=1,
-    starts_line=1,
-    is_jump_target=False,
-)
-
-
-async def mock_send_disassemble_task(
-    version: str, code: str
-) -> list[InstructionDict] | Exception:
-    return [mock_instruction] if version == "3.7.0" else SyntaxError("TestError!")
+async def mock_send_disassemble_task(version: str, _: str) -> str | Exception:
+    return "mockedResponse" if version == "3.7.0" else SyntaxError("TestError!")
 
 
 class TestVersionsRoute:
@@ -74,6 +60,6 @@ class TestDisassembleRoute:
             response = await client.post("/disassemble")
             assert response.status_code == 200
             assert response.json() == {
-                "3.7.0": [mock_instruction],
+                "3.7.0": "mockedResponse",
                 "3.8.0": "TestError!",
             }

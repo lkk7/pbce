@@ -1,20 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "store/store";
 
-export interface BytecodeInstruction {
-  opcode: number;
-  opname: string;
-  arg?: number;
-  argval: any;
-  argrepr: string;
-  offset: number;
-  starts_line?: number;
-  is_jump_target: boolean;
-}
-
-export interface InstructionsForVersions {
-  [key: string]: BytecodeInstruction[] | string;
-}
+export type InstructionsForVersions = Record<string, string>;
 
 interface InstructionsState {
   bytecodeInstructions: InstructionsForVersions;

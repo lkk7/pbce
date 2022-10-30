@@ -1,10 +1,10 @@
+import React from "react";
 import Editor, { EditorProps, OnChange } from "@monaco-editor/react";
-import { getDisassembled } from "api/endpoints";
 import { useCallback, useMemo } from "react";
 import { typedUseDispatch, typedUseSelector } from "store/hooks";
-import { setInstructions } from "store/slices/instructions";
 import { selectedVersionsSelector } from "store/slices/versions";
-import { debounceRequest, unicodeStrToByteStr } from "./utils";
+import { debounceRequest, getAndHandleDisassembled } from "./utils";
+import { editor } from "monaco-editor";
 
 const editorProps: EditorProps = {
   width: "100%",
@@ -13,26 +13,34 @@ const editorProps: EditorProps = {
   theme: "vs-dark",
 };
 
-export const CodeEditor = () => {
-  const dispatch = typedUseDispatch();
-  const selectedVersions = typedUseSelector(selectedVersionsSelector);
-  const onChange: OnChange = useCallback(
-    (code) => {
-      if (!code || !code.trim()) return;
-      getDisassembled(
-        // The code payload is base64-encoded because the server API requires it.
-        window.btoa(unicodeStrToByteStr(code)),
-        selectedVersions
-      ).then((res) => {
-        dispatch(setInstructions(res));
-      });
-    },
-    [dispatch, selectedVersions]
-  );
-  const debouncedOnChange = useMemo(
-    () => debounceRequest(onChange, 500),
-    [onChange]
-  );
+export const CodeEditor = React.forwardRef<editor.ICodeEditor>(
+  (_, editorRef) => {
+    const dispatch = typedUseDispatch();
+    const selectedVersions = typedUseSelector(selectedVersionsSelector);
+    const onChange: OnChange = useCallback(
+      (code) => {
+        if (!code || !code.trim()) return;
+        getAndHandleDisassembled(code, selectedVersions, dispatch);
+      },
+      [dispatch, selectedVersions]
+    );
+    const debouncedOnChange = useMemo(
+      () => debounceRequest(onChange, 500),
+      [onChange]
+    );
 
-  return <Editor {...editorProps} onChange={debouncedOnChange} />;
-};
+    const handleEditorDidMount = (editor: editor.ICodeEditor) => {
+      if (editorRef !== null && "current" in editorRef) {
+        editorRef.current = editor;
+      }
+    };
+
+    return (
+      <Editor
+        {...editorProps}
+        onChange={debouncedOnChange}
+        onMount={handleEditorDidMount}
+      />
+    );
+  }
+);

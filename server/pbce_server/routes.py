@@ -1,5 +1,4 @@
 import asyncio
-from dis import Instruction
 
 from pbce_server.disassemble import send_disassemble_task
 from pbce_server.models import DisassembleRequest
@@ -34,7 +33,7 @@ class Disassemble(HTTPEndpoint):
                 )
 
         # Disassemble the code by async tasks, for all specified versions
-        disassembled: list[Instruction | Exception] = await asyncio.gather(
+        disassembled: list[str | Exception] = await asyncio.gather(
             *(send_disassemble_task(v, valid_request.code) for v in versions)
         )
         return JSONResponse(
