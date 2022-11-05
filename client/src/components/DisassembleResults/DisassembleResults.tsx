@@ -21,7 +21,7 @@ export const DisassembleResults = () => {
   const resultsToRender = useMemo(
     () =>
       Object.entries(instructionsForVersions).map(([version, instructions]) => (
-        <tr>
+        <tr key={version}>
           <td>{version}</td>
           <td>
             <Code className={classes.code} block>
@@ -43,8 +43,8 @@ export const DisassembleResults = () => {
       >
         <thead>
           <tr>
-            <th>Python Version</th>
-            <th>Results</th>
+            <th>{strings.pyVersion}</th>
+            <th>{strings.results}</th>
           </tr>
         </thead>
         <tbody>{resultsToRender}</tbody>
