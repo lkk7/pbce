@@ -8,9 +8,9 @@ Check Python bytecode instructions for a single version or across different vers
 
 ## Usage
 
-The application is Docker-based, so you need it.
+The application is Docker-based, so you need Docker.
 
 - Build the image from the 'server' directory: `docker build -t pbce .`
 - Run the container from that image: `docker run --rm -d -p 8080:8080 pbce`
 - Run the client in the `client` directory: `npm run start`
-- Client is running at `http://localhost:3000`
+- The client is running at `http://localhost:3000`
